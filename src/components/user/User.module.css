@@ -1,0 +1,29 @@
+.container {
+  max-width: 350px;
+}
+.user_img {
+  display: flex;
+  margin: 40px 57px 30px;
+  border-radius: 50%;
+  max-width: 280px;
+  max-height: 280px;
+}
+.container h3 {
+  font-size: 26px;
+  margin: 0 0 12px 57px;
+}
+.login {
+  margin-left: 57px;
+}
+
+.follow {
+  display: flex;
+  margin: 25px 0 0 57px;
+  align-items: center;
+}
+.follow img {
+  margin-right: 8px;
+}
+.follow img:last-of-type {
+  margin-left: 20px;
+}

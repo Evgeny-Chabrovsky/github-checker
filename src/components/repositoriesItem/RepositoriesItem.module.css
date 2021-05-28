@@ -1,0 +1,16 @@
+.container {
+  width: 877px;
+  height: 112px;
+  background-color: #fff;
+  border-radius: 6px;
+  margin-bottom: 24px;
+}
+.link {
+  display: block;
+  font-size: 24px;
+  box-sizing: border-box;
+  padding: 24px 0 0 32px;
+}
+.container p {
+  padding: 16px 0 0 32px;
+}
