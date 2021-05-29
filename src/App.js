@@ -19,9 +19,7 @@ function App() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState({});
-  const [repositories, setRepositories] = useState([]);
   const [userNameInput, setUserNameInput] = useState("");
-  const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(0); //0
   const [status, setStatus] = useState(START_APP);
 
@@ -40,73 +38,55 @@ function App() {
   // }
 
   function handleOnChangeInput(event) {
-    // if (userNameInput === "") {
-    // setStatus(START_APP);
-    // }
     setUserNameInput(event.target.value);
   }
-  // console.log(userNameInput);
+
   function handleKeyDown(event) {
     if (event.key === "Enter") {
-      console.log(userNameInput);
-      requestUserRepos(userNameInput, page);
       setPageCount(Math.ceil(user.public_repos / PER_PAGE));
       setStatus(false);
-      setPage(1);
+      setLoading(true);
     }
   }
-  function handlePageClick(e) {
-    const selectedPage = e.selected;
-    setPage(selectedPage + 1);
-    // debugger;
-    requestUserRepos(userNameInput, page);
-  }
-  function handlePageItemCount(reposLength, perPage, pageNumber) {
-    if (reposLength === 1) {
-      return { first: pageNumber * perPage - perPage + 1 };
-    }
-    return {
-      first: pageNumber * perPage - perPage + 1,
-      last:
-        reposLength === 4
-          ? pageNumber * perPage
-          : pageNumber * perPage - (perPage - reposLength),
-    };
-  }
-  const pageItemCount = handlePageItemCount(
-    repositories.length,
-    PER_PAGE,
-    page
-  );
 
-  function requestUserRepos(username, page) {
-    Promise.all([
-      fetch(`https://api.github.com/users/${username}`),
-      fetch(
-        `https://api.github.com/users/${username}/repos?per_page=${PER_PAGE}&page=${page}`
-      ),
-    ])
-      .then((response) => Promise.all(response.map((r) => r.json())))
-      .then((response) => [setUser(response[0]), setRepositories(response[1])]);
-  }
+  // function handlePageItemCount(reposLength, perPage, pageNumber) {
+  //   if (reposLength === 1) {
+  //     return { first: pageNumber * perPage - perPage + 1 };
+  //   }
+  //   return {
+  //     first: pageNumber * perPage - perPage + 1,
+  //     last:
+  //       reposLength === 4
+  //         ? pageNumber * perPage
+  //         : pageNumber * perPage - (perPage - reposLength),
+  //   };
+  // }
+  // const pageItemCount = handlePageItemCount(
+  //   repositories.length,
+  //   PER_PAGE,
+  //   page
+  // );
+
+  //
 
   useEffect(() => {
-    // requestUserRepos(userNameInput, page);s
     setLoading(true);
 
-    setPageCount(Math.ceil(user.public_repos / PER_PAGE));
-    setLoading(false);
-  }, [user.public_repos, pageCount, page, userNameInput]);
+    function requestUser(username) {
+      fetch(`https://api.github.com/users/${username}`)
+        .then((response) => response.json())
+        .then((response) => {
+          console.log(response);
+          setUser(response);
+        });
+    }
+    if (userNameInput) requestUser(userNameInput);
+    // setPageCount(Math.ceil(user.public_repos / PER_PAGE));
 
-  const {
-    avatar_url,
-    name,
-    login,
-    followers,
-    following,
-    html_url,
-    public_repos,
-  } = user;
+    setLoading(false);
+  }, [loading]);
+
+  const { avatar_url, name, login, followers, following, html_url } = user;
   return (
     <div className="App">
       <Header
@@ -127,18 +107,15 @@ function App() {
             following={following}
             html_url={html_url}
           />
-          <Repositories
-            repositories={repositories}
-            public_repos={public_repos}
-          />
+          <Repositories user={user} perPage={PER_PAGE} />
         </div>
       )}
-      <PageItemsCounter
+      {/* <PageItemsCounter
         public_repos={public_repos}
         firstPage={pageItemCount.first}
         lastPage={pageItemCount.last}
-      />
-      <ReactPaginate
+      /> */}
+      {/* <ReactPaginate
         previousLabel={"<"}
         nextLabel={">"}
         breakLabel={"..."}
@@ -149,7 +126,7 @@ function App() {
         onPageChange={handlePageClick}
         containerClassName={"pagination"}
         activeClassName={"active"}
-      />
+      /> */}
     </div>
   );
 }
