@@ -10,18 +10,22 @@ import notFound_icon from "../src/images/notFound.svg";
 import PageItemsCounter from "./components/pageItemsCounter/PageItemsCounter";
 
 function App() {
+  const STATUS_NOT_FOUND = { img: notFound_icon, text: "User not found" };
+  const START_APP = {
+    img: search_icon,
+    text: "Start with searching a GitHub user",
+  };
+
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState({});
   const [repositories, setRepositories] = useState([]);
-  const [offset, setOffset] = useState(1);
-  const [pageCount, setPageCount] = useState(0);
-  const [status, setStatus] = useState({
-    img: search_icon,
-    text: "Start with searching a GitHub user",
-  });
+  const [userNameInput, setUserNameInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(0); //0
+  const [status, setStatus] = useState(START_APP);
+
   const PER_PAGE = 4;
-  const statusNotFound = { img: notFound_icon, text: "User not found" };
 
   // .then(
   //   (result) => {
@@ -34,17 +38,28 @@ function App() {
   //   }
   // );
   // }
-  function handlePageClick(e) {
-    const selectedPage = e.selected;
-    setOffset(selectedPage + 1);
-  }
-  console.log(offset);
 
+  function handleOnChangeInput(event) {
+    // if (userNameInput === "") {
+    // setStatus(START_APP);
+    // }
+    setUserNameInput(event.target.value);
+  }
+  // console.log(userNameInput);
   function handleKeyDown(event) {
     if (event.key === "Enter") {
-      // console.log("pum");
-      setStatus(statusNotFound);
+      console.log(userNameInput);
+      requestUserRepos(userNameInput, page);
+      setPageCount(Math.ceil(user.public_repos / PER_PAGE));
+      setStatus(false);
+      setPage(1);
     }
+  }
+  function handlePageClick(e) {
+    const selectedPage = e.selected;
+    setPage(selectedPage + 1);
+    // debugger;
+    requestUserRepos(userNameInput, page);
   }
   function handlePageItemCount(reposLength, perPage, pageNumber) {
     if (reposLength === 1) {
@@ -61,30 +76,27 @@ function App() {
   const pageItemCount = handlePageItemCount(
     repositories.length,
     PER_PAGE,
-    offset
+    page
   );
 
-  function requestUserRepos(username, offset) {
+  function requestUserRepos(username, page) {
     Promise.all([
       fetch(`https://api.github.com/users/${username}`),
       fetch(
-        `https://api.github.com/users/${username}/repos?per_page=${PER_PAGE}&page=${offset}`
+        `https://api.github.com/users/${username}/repos?per_page=${PER_PAGE}&page=${page}`
       ),
     ])
       .then((response) => Promise.all(response.map((r) => r.json())))
-      .then((response) => [
-        setUser(response[0]),
-        setRepositories(response[1]),
-        setLoading(false),
-        setPageCount(Math.ceil(user.public_repos / PER_PAGE)),
-      ]);
+      .then((response) => [setUser(response[0]), setRepositories(response[1])]);
   }
 
   useEffect(() => {
+    // requestUserRepos(userNameInput, page);s
     setLoading(true);
 
-    requestUserRepos("gaearon", offset);
-  }, [offset]);
+    setPageCount(Math.ceil(user.public_repos / PER_PAGE));
+    setLoading(false);
+  }, [user.public_repos, pageCount, page, userNameInput]);
 
   const {
     avatar_url,
@@ -95,31 +107,40 @@ function App() {
     html_url,
     public_repos,
   } = user;
-  console.log(repositories);
   return (
     <div className="App">
-      <Header handleKeyDown={handleKeyDown} />
-      {/* <Status img={status.img} text={status.text} /> */}
-      <div className="content">
-        {loading && <p>Loading...</p>}
-        <User
-          avatar_url={avatar_url}
-          name={name}
-          login={login}
-          followers={followers}
-          following={following}
-          html_url={html_url}
-        />
-        <Repositories repositories={repositories} public_repos={public_repos} />
-      </div>
+      <Header
+        handleKeyDown={handleKeyDown}
+        handleOnChangeInput={handleOnChangeInput}
+      />
+      {status === START_APP ? (
+        <Status img={status.img} text={status.text} />
+      ) : null}
+      {!status && (
+        <div className="content">
+          {loading && <p>Loading...</p>}
+          <User
+            avatar_url={avatar_url}
+            name={name}
+            login={login}
+            followers={followers}
+            following={following}
+            html_url={html_url}
+          />
+          <Repositories
+            repositories={repositories}
+            public_repos={public_repos}
+          />
+        </div>
+      )}
       <PageItemsCounter
         public_repos={public_repos}
         firstPage={pageItemCount.first}
         lastPage={pageItemCount.last}
       />
       <ReactPaginate
-        previousLabel={"previous"}
-        nextLabel={"next"}
+        previousLabel={"<"}
+        nextLabel={">"}
         breakLabel={"..."}
         breakClassName={"break-me"}
         pageCount={pageCount}
