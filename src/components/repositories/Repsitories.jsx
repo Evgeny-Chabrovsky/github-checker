@@ -21,22 +21,42 @@ function handlePageItemCount(reposLength, perPage, pageNumber) {
 const Repositories = ({ user, perPage }) => {
   const [repositories, setRepositories] = useState([]);
   const [page, setPage] = useState(1);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
+  // useEffect(() => {
+  //   // if (user.login) setPage(1);
+  //   function requestUserRepos(page) {
+  //     fetch(
+  //       `https://api.github.com/users/${user.login}/repos?per_page=${perPage}&page=${page}`
+  //     )
+  //       .then((response) => response.json())
+  //       .then((response) => {
+  //         console.log(response);
+  //         setRepositories(response);
+  //       });
+  //   }
+  //   requestUserRepos(page);
+  //   console.log(`page in effect: ${page}`);
+  // }, [user, page]);
   useEffect(() => {
-    // if (user.login) setPage(1);
-    function requestUserRepos(page) {
-      fetch(
-        `https://api.github.com/users/${user.login}/repos?per_page=${perPage}&page=${page}`
-      )
-        .then((response) => response.json())
-        .then((response) => {
-          console.log(response);
-          setRepositories(response);
-        });
+    async function fetchUserRepositories(page) {
+      try {
+        setError("");
+        setLoading(true);
+        const response = await fetch(
+          `https://api.github.com/users/${user.login}/repos?per_page=${perPage}&page=${page}`
+        );
+        setRepositories(await response.json());
+        setLoading(false);
+      } catch (error) {
+        setError(`Can not fetch repositories for user ${user.login}`);
+        setLoading(false);
+      }
     }
-    requestUserRepos(page);
-    console.log(`page in effect: ${page}`);
-  }, [user, page]);
+    fetchUserRepositories(page);
+    console.log(repositories);
+  }, [page, perPage, user.login]);
 
   function handlePageClick(e) {
     setPage(e.selected + 1);
@@ -45,8 +65,7 @@ const Repositories = ({ user, perPage }) => {
   const pageItemCount = repositories
     ? handlePageItemCount(repositories.length, perPage, page)
     : null;
-  console.log("render");
-  console.log(`page in render: ${page}`);
+
   return (
     <div className={styles.container}>
       <h2>Repositories ({user.public_repos})</h2>

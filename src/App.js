@@ -15,7 +15,7 @@ function App() {
   };
 
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState("");
+  const [loadingUser, setLoadingUser] = useState("");
   const [user, setUser] = useState([]);
   const [userNameInput, setUserNameInput] = useState("");
   const [status, setStatus] = useState(START_APP);
@@ -28,24 +28,34 @@ function App() {
   function handleKeyDown(event) {
     if (event.key === "Enter") {
       setStatus(false);
-      setLoading(userNameInput);
+      setLoadingUser(userNameInput);
     }
   }
+
   useEffect(() => {
-    setLoading(true);
-
-    function requestUser(username) {
-      fetch(`https://api.github.com/users/${username}`)
-        .then((response) => response.json())
-        .then((response) => {
-          console.log(response);
-          setUser(response);
-        });
+    async function fetchUser(username) {
+      try {
+        const response = await fetch(
+          `https://api.github.com/users/${username}`
+        );
+        const data = await response.json();
+        if (data.login) {
+          setUser(data);
+          console.log(data);
+        } else {
+          setError(data.message || "Error fetching user");
+        }
+        setLoadingUser("");
+      } catch (error) {
+        setLoadingUser("");
+        setError("Can not fetch this user");
+      }
     }
-    if (loading) requestUser(userNameInput);
-
-    setLoading(false);
-  }, [loading]);
+    if (loadingUser) {
+      fetchUser(loadingUser);
+    }
+  }, [loadingUser]);
+  console.log(error);
 
   const { avatar_url, name, login, followers, following, html_url } = user;
   return (
@@ -59,7 +69,7 @@ function App() {
       ) : null}
       {!status && (
         <div className="content">
-          {loading && <p>Loading...</p>}
+          {loadingUser && <p>Loading...</p>}
           <User
             avatar_url={avatar_url}
             name={name}
