@@ -4,10 +4,8 @@ import Header from "./components/header/Header";
 import Status from "./components/status/Status";
 import Repositories from "./components/repositories/Repsitories";
 import User from "./components/user/User";
-import ReactPaginate from "react-paginate";
 import search_icon from "../src/images/search.svg";
 import notFound_icon from "../src/images/notFound.svg";
-import PageItemsCounter from "./components/pageItemsCounter/PageItemsCounter";
 
 function App() {
   const STATUS_NOT_FOUND = { img: notFound_icon, text: "User not found" };
@@ -17,25 +15,11 @@ function App() {
   };
 
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState("");
+  const [user, setUser] = useState([]);
   const [userNameInput, setUserNameInput] = useState("");
-  const [pageCount, setPageCount] = useState(0); //0
   const [status, setStatus] = useState(START_APP);
-
   const PER_PAGE = 4;
-
-  // .then(
-  //   (result) => {
-  //     setIsLoaded(true);
-  //     setItems(result);
-  //   },
-  //   (error) => {
-  //     setIsLoaded(true);
-  //     setError(error);
-  //   }
-  // );
-  // }
 
   function handleOnChangeInput(event) {
     setUserNameInput(event.target.value);
@@ -43,32 +27,10 @@ function App() {
 
   function handleKeyDown(event) {
     if (event.key === "Enter") {
-      setPageCount(Math.ceil(user.public_repos / PER_PAGE));
       setStatus(false);
-      setLoading(true);
+      setLoading(userNameInput);
     }
   }
-
-  // function handlePageItemCount(reposLength, perPage, pageNumber) {
-  //   if (reposLength === 1) {
-  //     return { first: pageNumber * perPage - perPage + 1 };
-  //   }
-  //   return {
-  //     first: pageNumber * perPage - perPage + 1,
-  //     last:
-  //       reposLength === 4
-  //         ? pageNumber * perPage
-  //         : pageNumber * perPage - (perPage - reposLength),
-  //   };
-  // }
-  // const pageItemCount = handlePageItemCount(
-  //   repositories.length,
-  //   PER_PAGE,
-  //   page
-  // );
-
-  //
-
   useEffect(() => {
     setLoading(true);
 
@@ -80,8 +42,7 @@ function App() {
           setUser(response);
         });
     }
-    if (userNameInput) requestUser(userNameInput);
-    // setPageCount(Math.ceil(user.public_repos / PER_PAGE));
+    if (loading) requestUser(userNameInput);
 
     setLoading(false);
   }, [loading]);
@@ -110,23 +71,6 @@ function App() {
           <Repositories user={user} perPage={PER_PAGE} />
         </div>
       )}
-      {/* <PageItemsCounter
-        public_repos={public_repos}
-        firstPage={pageItemCount.first}
-        lastPage={pageItemCount.last}
-      /> */}
-      {/* <ReactPaginate
-        previousLabel={"<"}
-        nextLabel={">"}
-        breakLabel={"..."}
-        breakClassName={"break-me"}
-        pageCount={pageCount}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={5}
-        onPageChange={handlePageClick}
-        containerClassName={"pagination"}
-        activeClassName={"active"}
-      /> */}
     </div>
   );
 }

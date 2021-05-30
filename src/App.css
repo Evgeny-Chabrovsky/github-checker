@@ -44,7 +44,7 @@
 } */
 /*========== Pagination ==========*/
 .pagination {
-  margin: 15px auto;
+  margin-left: 25px;
   display: flex;
   list-style: none;
   outline: none;

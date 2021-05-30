@@ -5,3 +5,8 @@
   font-size: 2em;
   margin: 28px auto;
 }
+.paginationItem {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
