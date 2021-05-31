@@ -4,22 +4,17 @@ import Header from "./components/header/Header";
 import Status from "./components/status/Status";
 import Repositories from "./components/repositories/Repsitories";
 import User from "./components/user/User";
-import search_icon from "../src/images/search.svg";
-import notFound_icon from "../src/images/notFound.svg";
+import searchIcon from "../src/images/search.svg";
+import notFoundIcon from "../src/images/notFound.svg";
+import emptyIcon from "../src/images/empty.svg";
+
+const PER_PAGE = 4;
 
 function App() {
-  const STATUS_NOT_FOUND = { img: notFound_icon, text: "User not found" };
-  const START_APP = {
-    img: search_icon,
-    text: "Start with searching a GitHub user",
-  };
-
   const [error, setError] = useState(null);
   const [loadingUser, setLoadingUser] = useState("");
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState(null);
   const [userNameInput, setUserNameInput] = useState("");
-  const [status, setStatus] = useState(START_APP);
-  const PER_PAGE = 4;
 
   function handleOnChangeInput(event) {
     setUserNameInput(event.target.value);
@@ -27,8 +22,8 @@ function App() {
 
   function handleKeyDown(event) {
     if (event.key === "Enter") {
-      setStatus(false);
       setLoadingUser(userNameInput);
+      setError("");
     }
   }
 
@@ -38,38 +33,36 @@ function App() {
         const response = await fetch(
           `https://api.github.com/users/${username}`
         );
+        !response.ok &&
+          setError(
+            response.status === 404 ? "User not found" : "Error fetching user"
+          );
         const data = await response.json();
-        if (data.login) {
-          setUser(data);
-          console.log(data);
-        } else {
-          setError(data.message || "Error fetching user");
-        }
+        console.log(data);
+        setUser(data);
         setLoadingUser("");
       } catch (error) {
         setLoadingUser("");
         setError("Can not fetch this user");
       }
     }
+
     if (loadingUser) {
       fetchUser(loadingUser);
     }
   }, [loadingUser]);
-  console.log(error);
 
-  const { avatar_url, name, login, followers, following, html_url } = user;
-  return (
-    <div className="App">
-      <Header
-        handleKeyDown={handleKeyDown}
-        handleOnChangeInput={handleOnChangeInput}
-      />
-      {status === START_APP ? (
-        <Status img={status.img} text={status.text} />
-      ) : null}
-      {!status && (
+  function renderContent() {
+    if (error) return <Status img={notFoundIcon} text={error} />;
+    if (loadingUser) return <p>Loading...</p>;
+    if (!user)
+      return (
+        <Status img={searchIcon} text={"Start with searching a GitHub user"} />
+      );
+    const { avatar_url, name, login, followers, following, html_url } = user;
+    return (
+      <>
         <div className="content">
-          {loadingUser && <p>Loading...</p>}
           <User
             avatar_url={avatar_url}
             name={name}
@@ -78,9 +71,27 @@ function App() {
             following={following}
             html_url={html_url}
           />
-          <Repositories user={user} perPage={PER_PAGE} />
+          {/* {user.public_repos === 0 ? (
+            <img src={emptyIcon} alt="no repositories" />
+          ) : (
+            <Repositories user={user} perPage={PER_PAGE} />
+          )} */}
+          <Status
+            img={searchIcon}
+            text={"Start with searching a GitHub user"}
+          />
         </div>
-      )}
+      </>
+    );
+  }
+
+  return (
+    <div className="App">
+      <Header
+        handleKeyDown={handleKeyDown}
+        handleOnChangeInput={handleOnChangeInput}
+      />
+      {renderContent()}
     </div>
   );
 }
