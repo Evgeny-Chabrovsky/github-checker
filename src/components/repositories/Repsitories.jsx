@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import RepositoriesItem from "../repositoriesItem/RepositoriesItem";
 import ReactPaginate from "react-paginate";
 import styles from "./Repositories.module.css";
-import emptyIcon from "../../images/empty.svg";
+
 import PageItemsCount from "../pageItemsCounter/PageItemsCounter";
 
 function handlePageItemCount(reposLength, perPage, pageNumber) {
@@ -24,21 +24,6 @@ const Repositories = ({ user, perPage }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   // if (user.login) setPage(1);
-  //   function requestUserRepos(page) {
-  //     fetch(
-  //       `https://api.github.com/users/${user.login}/repos?per_page=${perPage}&page=${page}`
-  //     )
-  //       .then((response) => response.json())
-  //       .then((response) => {
-  //         console.log(response);
-  //         setRepositories(response);
-  //       });
-  //   }
-  //   requestUserRepos(page);
-  //   console.log(`page in effect: ${page}`);
-  // }, [user, page]);
   useEffect(() => {
     async function fetchUserRepositories(page) {
       try {

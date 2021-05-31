@@ -71,20 +71,15 @@ function App() {
             following={following}
             html_url={html_url}
           />
-          {/* {user.public_repos === 0 ? (
-            <img src={emptyIcon} alt="no repositories" />
+          {user.public_repos === 0 ? (
+            <Status img={emptyIcon} text={"Repository list is empty"} />
           ) : (
             <Repositories user={user} perPage={PER_PAGE} />
-          )} */}
-          <Status
-            img={searchIcon}
-            text={"Start with searching a GitHub user"}
-          />
+          )}
         </div>
       </>
     );
   }
-
   return (
     <div className="App">
       <Header
