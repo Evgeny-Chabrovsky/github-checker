@@ -2,3 +2,9 @@
   font-size: 14px;
   color: #808080;
 }
+
+@media screen and (max-width: 426px) {
+  .pageItemCount {
+    display: none;
+  }
+}

@@ -10,6 +10,7 @@ const Header = ({ handleKeyDown, handleOnChangeInput }) => {
         type="text"
         onKeyDown={handleKeyDown}
         onChange={handleOnChangeInput}
+        autoFocus
       />
     </div>
   );

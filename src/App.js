@@ -4,10 +4,10 @@ import Header from "./components/header/Header";
 import Status from "./components/status/Status";
 import Repositories from "./components/repositories/Repsitories";
 import User from "./components/user/User";
+import Loader from "./components/loader/Loader";
 import searchIcon from "../src/images/search.svg";
 import notFoundIcon from "../src/images/notFound.svg";
 import emptyIcon from "../src/images/empty.svg";
-import Loader from "./components/loader/Loader";
 
 const PER_PAGE = 4;
 

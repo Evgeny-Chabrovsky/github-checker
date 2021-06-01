@@ -1,5 +1,6 @@
 .container {
-  margin-left: 39px;
+  width: 92%;
+  margin: 0 4%;
 }
 .container h2 {
   font-size: 2em;
@@ -9,4 +10,15 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+}
+
+@media screen and (max-width: 781px) {
+  .container h2 {
+    text-align: center;
+  }
+}
+@media screen and (max-width: 426px) {
+  .paginationItem {
+    justify-content: center;
+  }
 }

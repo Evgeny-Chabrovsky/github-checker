@@ -23,6 +23,7 @@ function handlePageItemCount(reposLength, perPage, pageNumber) {
 const Repositories = ({ user, perPage }) => {
   const [repositories, setRepositories] = useState([]);
   const [page, setPage] = useState(1);
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -77,16 +78,18 @@ const Repositories = ({ user, perPage }) => {
             lastPage={pageItemCount.last}
           />
           <ReactPaginate
-            previousLabel={"<"}
-            nextLabel={">"}
+            previousLabel={""}
+            nextLabel={""}
             breakLabel={"..."}
-            breakClassName={"break-me"}
             pageCount={totalPagesSum}
             marginPagesDisplayed={2}
             pageRangeDisplayed={5}
             onPageChange={handlePageClick}
             containerClassName={"pagination"}
             activeClassName={"active"}
+            previousClassName={"previous"}
+            nextClassName={"next"}
+            disabledClassName={"disabled"}
           />
         </div>
       </>
