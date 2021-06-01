@@ -7,6 +7,7 @@ import User from "./components/user/User";
 import searchIcon from "../src/images/search.svg";
 import notFoundIcon from "../src/images/notFound.svg";
 import emptyIcon from "../src/images/empty.svg";
+import Loader from "./components/loader/Loader";
 
 const PER_PAGE = 4;
 
@@ -22,8 +23,9 @@ function App() {
 
   function handleKeyDown(event) {
     if (event.key === "Enter") {
-      setLoadingUser(userNameInput);
       setError("");
+      setUser(null);
+      setLoadingUser(userNameInput);
     }
   }
 
@@ -38,7 +40,6 @@ function App() {
             response.status === 404 ? "User not found" : "Error fetching user"
           );
         const data = await response.json();
-        console.log(data);
         setUser(data);
         setLoadingUser("");
       } catch (error) {
@@ -54,7 +55,6 @@ function App() {
 
   function renderContent() {
     if (error) return <Status img={notFoundIcon} text={error} />;
-    if (loadingUser) return <p>Loading...</p>;
     if (!user)
       return (
         <Status img={searchIcon} text={"Start with searching a GitHub user"} />
@@ -82,6 +82,7 @@ function App() {
   }
   return (
     <div className="App">
+      {loadingUser && <Loader />}
       <Header
         handleKeyDown={handleKeyDown}
         handleOnChangeInput={handleOnChangeInput}

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import RepositoriesItem from "../repositoriesItem/RepositoriesItem";
 import ReactPaginate from "react-paginate";
-import styles from "./Repositories.module.css";
-
+import RepositoriesItem from "../repositoriesItem/RepositoriesItem";
 import PageItemsCount from "../pageItemsCounter/PageItemsCounter";
+import Loader from "../loader/Loader";
+import Status from "../status/Status";
+import styles from "./Repositories.module.css";
+import emptyIcon from "../../images/empty.svg";
 
 function handlePageItemCount(reposLength, perPage, pageNumber) {
   if (reposLength === 1) {
@@ -22,7 +24,7 @@ const Repositories = ({ user, perPage }) => {
   const [repositories, setRepositories] = useState([]);
   const [page, setPage] = useState(1);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchUserRepositories(page) {
@@ -32,7 +34,12 @@ const Repositories = ({ user, perPage }) => {
         const response = await fetch(
           `https://api.github.com/users/${user.login}/repos?per_page=${perPage}&page=${page}`
         );
-        setRepositories(await response.json());
+        const data = await response.json();
+        if (data.message) {
+          setError(data.message);
+        } else {
+          setRepositories(data);
+        }
         setLoading(false);
       } catch (error) {
         setError(`Can not fetch repositories for user ${user.login}`);
@@ -40,7 +47,6 @@ const Repositories = ({ user, perPage }) => {
       }
     }
     fetchUserRepositories(page);
-    console.log(repositories);
   }, [page, perPage, user.login]);
 
   function handlePageClick(e) {
@@ -51,36 +57,46 @@ const Repositories = ({ user, perPage }) => {
     ? handlePageItemCount(repositories.length, perPage, page)
     : null;
 
+  function renderRepositories() {
+    if (error) return <Status img={emptyIcon} text={error} />;
+    return (
+      <>
+        <h2>Repositories ({user.public_repos})</h2>
+        {repositories.map((repository) => (
+          <RepositoriesItem
+            key={repository.id}
+            html_url={repository.html_url}
+            name={repository.name}
+            description={repository.description}
+          />
+        ))}
+        <div className={styles.paginationItem}>
+          <PageItemsCount
+            public_repos={user.public_repos}
+            firstPage={pageItemCount.first}
+            lastPage={pageItemCount.last}
+          />
+          <ReactPaginate
+            previousLabel={"<"}
+            nextLabel={">"}
+            breakLabel={"..."}
+            breakClassName={"break-me"}
+            pageCount={totalPagesSum}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            activeClassName={"active"}
+          />
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className={styles.container}>
-      <h2>Repositories ({user.public_repos})</h2>
-      {repositories.map((repository) => (
-        <RepositoriesItem
-          key={repository.id}
-          html_url={repository.html_url}
-          name={repository.name}
-          description={repository.description}
-        />
-      ))}
-      <div className={styles.paginationItem}>
-        <PageItemsCount
-          public_repos={user.public_repos}
-          firstPage={pageItemCount.first}
-          lastPage={pageItemCount.last}
-        />
-        <ReactPaginate
-          previousLabel={"<"}
-          nextLabel={">"}
-          breakLabel={"..."}
-          breakClassName={"break-me"}
-          pageCount={totalPagesSum}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
-          onPageChange={handlePageClick}
-          containerClassName={"pagination"}
-          activeClassName={"active"}
-        />
-      </div>
+      {loading && <Loader />}
+      {renderRepositories()}
     </div>
   );
 };
