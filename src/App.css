@@ -23,6 +23,10 @@
   border-radius: 3px;
   color: #fff;
 }
+.pagination > li {
+  margin: 0 3px;
+}
+
 .pagination > li > a {
   padding: 2px 6px;
   outline: none;
@@ -46,13 +50,13 @@
 .previous {
   background-image: url(../src/images/arrowPrevious.svg);
   background-repeat: no-repeat;
-  background-position: 0% 65%;
+  background-position: 0% 63%;
 }
 
 .next {
   background-image: url(../src/images/arrowNext.svg);
   background-repeat: no-repeat;
-  background-position: 100% 65%;
+  background-position: 100% 63%;
 }
 
 @media screen and (max-width: 781px) {
